@@ -21,12 +21,16 @@ socket.on('receivedIceCandidateFromServer',iceCandidate=>{
 })
 
 function createOfferEls(offers){
+    if(offers.length === 1){
+        answerOffer(offers[0]);
+        return;
+    }
     //make green answer button for this new offer
     const answerEl = document.querySelector('#answer');
     offers.forEach(o=>{
         console.log(o);
         const newOfferEl = document.createElement('div');
-        newOfferEl.innerHTML = `<button class="btn btn-success col-1">Answer ${o.offererUserName}</button>`
+        newOfferEl.innerHTML = `<button class="btn btn-success col-1">Awaiting Call of ${o.offererUserName}</button>`
         newOfferEl.addEventListener('click',()=>answerOffer(o))
         answerEl.appendChild(newOfferEl);
     })
