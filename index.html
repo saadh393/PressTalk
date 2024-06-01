@@ -8,7 +8,7 @@
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <link rel='stylesheet' type='text/css' media='screen' href='styles.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='./styles/styles.css'>
 </head>
 
 <body>
@@ -21,20 +21,21 @@
             </div>
         </div>
 
-        <div class="actions">
-            <button id="ring">Ring</button>
-            <button id="emergency">Emergency</button>
+        <div class="meta">
+            <span id="username"></span>
+            <span id="ip_addr"></span>
         </div>
+
+        <div id="answer"></div>
 
 
         <canvas id="visualizer"></canvas>
 
-        <div id="answer" class="col">
 
-        </div>
+    </div>
 
-        <audio id="local-audio" autoplay></audio>
-        <audio id="remote-audio" autoplay></audio>
+    <audio id="local-audio" autoplay></audio>
+    <audio id="remote-audio" autoplay></audio>
     </div>
 
     <div id="dialog">
@@ -42,7 +43,7 @@
 </body>
 <script src="./scripts/dom.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src='scripts.js'></script>
-<script src='socketListeners.js'></script>
+<script src='./scripts/scripts.js'></script>
+<script src='./scripts/socketListeners.js'></script>
 
 </html>

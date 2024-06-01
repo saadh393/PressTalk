@@ -1,16 +1,77 @@
-getIpAddressDialog()
-
-const userName = "Rob-" + Math.floor(Math.random() * 100000)
+let socket = null;
+let userName;
 const password = "x";
-document.querySelector('#user-name').innerHTML = userName;
+
+(async () => {
+    userName = await getUserNameDialog(["name1", "name2", "name3"]);
+    window.ROOM_USER_NAME = userName
+    const IP_ADDRESS = await getIpAddressDialog();
+    window.IP = IP_ADDRESS
+
+    // Authorizing with Socket
+    socket = io.connect(IP_ADDRESS, {
+        auth: {
+            userName, password
+        }
+    });
+
+    socket.on('connect',async data => {
+        renderMetaInfo();
+    })
+
+    socket.on('availableOffers', offers => {
+        createOfferEls(offers)
+    })
+    
+    //someone just made a new offer and we're already here - call createOfferEls
+    socket.on('newOfferAwaiting', offers => {
+        createOfferEls(offers)
+    })
+    
+    socket.on('answerResponse', offerObj => {
+        console.log("answerResponse", offerObj)
+        addAnswer(offerObj)
+    })
+    
+    socket.on('receivedIceCandidateFromServer', iceCandidate => {
+
+    })
+
+    socket.on("connectedUsers", c => renderConnectedUsers(c))
+
+    socket.on("hangup", (connectedWith) => {
+        // console.log(connectedWith)
+        // document.getElementById("hangup-"+connectedWith).style.display = "none"
+    })
+    
+    function createOfferEls(offers) {
+        const answerEl = document.querySelector('#answer');
+
+        offers.forEach(o => {
+            if(o.offer.to == window.ROOM_USER_NAME){
+                answerOffer(o)
+                console.log("window.ROOM_USER_NAME", o)
+                document.getElementById("hangup-"+o.offererUserName).style.display = "block"
+            }
+        })
+    
+        // offers.forEach(o => {
+        //     const newOfferEl = document.createElement('div');
+        //     newOfferEl.innerHTML = `<button class="btn btn-success col-1">Awaiting Call of ${o.offererUserName}</button>`
+        //     newOfferEl.addEventListener('click', () => answerOffer(o))
+        //     answerEl.appendChild(newOfferEl);
+        // })
+    }
+})()
+
+
+
+
+// document.querySelector('#user-name').innerHTML = userName;
 
 //if trying it on a phone, use this instead...
 // const socket = io.connect('https://LOCAL-DEV-IP-HERE:8181/',{
-const socket = io.connect('https://192.168.0.103:8181/', {
-    auth: {
-        userName, password
-    }
-})
+
 
 const localVideoEl = document.querySelector('#local-video');
 const remoteVideoEl = document.querySelector('#remote-video');
@@ -40,7 +101,7 @@ let peerConfiguration = {
 }
 
 //when a client initiates a call
-const call = async e => {
+const call = async (to) => {
     console.log('Calling...')
     callInProgress = true;
     await fetchUserMedia();
@@ -52,9 +113,10 @@ const call = async e => {
     try {
         console.log("Creating offer...")
         const offer = await peerConnection.createOffer();
-        console.log(offer);
+        offer.to = to
         peerConnection.setLocalDescription(offer);
         didIOffer = true;
+        document.getElementById("hangup-"+to).style.display = "block"
         socket.emit('newOffer', offer); //send offer to signalingServer
     } catch (err) {
         console.log(err)
@@ -62,7 +124,7 @@ const call = async e => {
 
 }
 
-const hangup = () => {
+const hangup = (connectedWith) => {
     console.log('Hanging up the call...');
 
     // Stop all local media tracks
@@ -83,8 +145,8 @@ const hangup = () => {
     callInProgress = false;
 
     // Clear video elements
-    localVideoEl.srcObject = null;
-    remoteVideoEl.srcObject = null;
+    // localVideoEl.srcObject = null;
+    // remoteVideoEl.srcObject = null;
 
     // Clear canvas
     canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
@@ -95,7 +157,9 @@ const hangup = () => {
 
 
     // Notify the other peer (optional, depending on your signaling server implementation)
-    socket.emit('hangup', { userName });
+    console.log("Hanging up with ", connectedWith)
+    document.getElementById("hangup-"+connectedWith).style.display = "none"
+    socket.emit('hangup', { connectedWith });
 };
 
 const answerOffer = async (offerObj) => {
@@ -103,8 +167,7 @@ const answerOffer = async (offerObj) => {
     await createPeerConnection(offerObj);
     const answer = await peerConnection.createAnswer({}); //just to make the docs happy
     await peerConnection.setLocalDescription(answer); //this is CLIENT2, and CLIENT2 uses the answer as the localDesc
-    console.log(offerObj)
-    console.log(answer)
+
     // console.log(peerConnection.signalingState) //should be have-local-pranswer because CLIENT2 has set its local desc to it's answer (but it won't be)
     //add the answer to the offerObj so the server knows which offer this is related to
     offerObj.answer = answer
@@ -115,7 +178,6 @@ const answerOffer = async (offerObj) => {
         peerConnection.addIceCandidate(c);
         console.log("======Added Ice Candidate======")
     })
-    console.log(offerIceCandidates)
 }
 
 const addAnswer = async (offerObj) => {
@@ -137,7 +199,6 @@ const fetchUserMedia = () => {
             localAudioEl.srcObject = stream;
             localAudioEl.muted = true; // Mute the local audio element
             localStream = stream;
-            console.log(localStream)
             resolve();
         } catch (err) {
             console.log(err);
@@ -164,13 +225,10 @@ const createPeerConnection = (offerObj) => {
         })
 
         peerConnection.addEventListener("signalingstatechange", (event) => {
-            console.log(event);
-            console.log(peerConnection.signalingState)
+
         });
 
         peerConnection.addEventListener('icecandidate', e => {
-            console.log('........Ice candidate found!......')
-            console.log(e)
             if (e.candidate) {
                 socket.emit('sendIceCandidateToSignalingServer', {
                     iceCandidate: e.candidate,
@@ -182,7 +240,7 @@ const createPeerConnection = (offerObj) => {
 
         peerConnection.addEventListener('track', e => {
             console.log("Got a track from the other peer!! How excting")
-            console.log(e)
+
             e.streams[0].getTracks().forEach(track => {
                 remoteStream.addTrack(track, remoteStream);
                 console.log("Here's an exciting moment... fingers cross")
@@ -191,6 +249,14 @@ const createPeerConnection = (offerObj) => {
             // Only set up the audio context and analyser after confirming the remote stream has an audio track
             if (e.track.kind === 'audio') {
                 setupAudioContext();
+            }
+        })
+
+        peerConnection.addEventListener('iceconnectionstatechange', e => {
+            console.log("ICE connection state change: ", peerConnection.iceConnectionState)
+            if (peerConnection.iceConnectionState === 'disconnected') {
+                console.log("Disconnected")
+                hangup()
             }
         })
 
@@ -245,13 +311,14 @@ const addNewIceCandidate = iceCandidate => {
 }
 
 
-document.querySelector('#call').addEventListener('click', call)
-document.querySelector('#push-to-talk').addEventListener('click', (e) => {
-    if (callInProgress) {
-        hangup()
-        e.target.style.backgroundColor = 'red';
-    } else {
-        call()
-        e.target.style.backgroundColor = 'green';
-    }
-})
+
+// document.querySelector('#call').addEventListener('click', call)
+// document.querySelector('#push-to-talk').addEventListener('click', (e) => {
+//     if (callInProgress) {
+//         hangup()
+//         e.target.style.backgroundColor = 'red';
+//     } else {
+//         call()
+//         e.target.style.backgroundColor = 'green';
+//     }
+// })

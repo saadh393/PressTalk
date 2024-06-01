@@ -7,6 +7,7 @@ body {
   margin: 0;
   display: grid;
   place-items: center;
+  color: white;
 }
 
 .timeAndDate {
@@ -46,7 +47,7 @@ body {
 .actions button {
   background-color: #2d333b;
   color: white;
-  padding: .8rem 1rem;
+  padding: 0.8rem 1rem;
   border: none;
   border-radius: 5px;
   margin: 0 1rem;
@@ -63,85 +64,28 @@ body {
 }
 
 /* ------------------------------------------- */
-
-.circle-container {
-  position: relative;
-  display: block;
-  margin-top: 120px;
+.meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  color: gray;
+  margin-bottom: 2rem;
 }
-
-.circle {
-  display: block;
-  width: 50%;
-  aspect-ratio: 1/1;
-  border-radius: 50%;
-  border: 2px solid #299d57;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  border-radius: 99999px;
-  transform-origin: center;
-  transition: border 0.3s ease;
-  animation: wave 1.5s infinite ease-in-out;
+.meta span {
+  font-size: 14px;
+  padding: 2px 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 4px;
 }
-
-.circle-1 {
-  width: 60%;
-  z-index: -1;
-  opacity: 0.8;
-}
-
-.circle-2 {
-  width: 70%;
-  z-index: -1;
-  opacity: 0.4;
-}
-
-.circle-3 {
-  width: 80%;
-  z-index: -1;
-  opacity: 0.2;
-}
-
-.circle:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.circle:nth-child(2) {
-  animation-delay: 0.3s;
-}
-
-.circle:nth-child(3) {
-  animation-delay: 0.6s;
-}
-
-@keyframes wave {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.push-to-talk {
-  width: 50%;
-  aspect-ratio: 1/1;
+.meta #username {
   background-color: #299d57;
   color: white;
-  margin: 0 auto;
-  display: grid;
-  place-items: center;
-  border-radius: 99999px;
-  margin-top: 2rem;
-  transition: all 0.3s ease;
-  user-select: none;
 }
-
-.push-to-talk:active {
-  scale: 0.9;
+.meta #ip_addr {
+  background-color: #8c0c42;
+  color: white;
 }
 
 /* .................................................. */
@@ -158,28 +102,33 @@ body {
   background-color: #161a22;
 }
 
-.video-player {
-  background-color: black;
-  width: 100%;
-}
-
-#video-wrapper {
-  position: relative;
-}
-
-#waiting {
-  display: none;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: auto;
-  width: 240px;
-  height: 40px;
-}
-
 #answer {
+  color: white;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+.online {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.online div {
+  flex: 1;
+  text-align: center;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.online div:first-child {
+  background-color: #299d57;
+}
+
+.online div:last-child {
+  background-color: red;
 }
 
 .hidden {
@@ -192,31 +141,31 @@ body {
   margin: 0 auto;
 }
 
-#dialog { 
-  display: grid;
+#dialog {
+  display: none;
   place-items: center;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,.5);
+  background-color: rgba(0, 0, 0, 0.5);
   z-index: 20;
   padding: 2rem 1rem;
   backdrop-filter: blur(5px);
 }
 
 #dialog .dialogContent {
+  min-width: 70%;
   padding: 2rem 1.8rem;
   background-color: white;
   border-radius: 10px;
-
 }
-
 
 /* Utils */
 
-input{
+input,
+select {
   width: 100%;
   padding: 5px 10px;
   border: 1px solid gray;
@@ -225,7 +174,7 @@ input{
   margin-top: 10px;
 }
 
-button{
+button {
   padding: 5px 25px;
   outline: none;
   border: none;
@@ -233,6 +182,6 @@ button{
   background-color: #299d57;
   text-align: center;
   color: white;
-  margin-top : 15px;
+  margin-top: 15px;
   margin-bottom: 15px;
 }
