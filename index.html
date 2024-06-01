@@ -26,38 +26,21 @@
             <button id="emergency">Emergency</button>
         </div>
 
-        <div class="circle-container">
-            <div class="push-to-talk" id="push-to-talk">
-                <h2>Push to Talk</h2>
-            </div>
-            <div class="circle circle-1"></div>
-            <div class="circle circle-2"></div>
-            <div class="circle circle-3"></div>
-        </div>
+
         <canvas id="visualizer"></canvas>
 
-        <div id="answer" class="col"></div>
+        <div id="answer" class="col">
+
+        </div>
 
         <audio id="local-audio" autoplay></audio>
         <audio id="remote-audio" autoplay></audio>
     </div>
 
-    <div class="container hidden">
-        <div class="row mb-3 mt-3 justify-content-md-center">
-            <div id="user-name"></div>
-            <button id="call" class="btn btn-primary col-1">Call!</button>
-            <button id="hangup" class="col-1" class="btn btn-primary">Hangup</button>
-            <div id="answer" class="col"></div>
-        </div>
-        <div id="videos">
-            <div id="video-wrapper">
-                <div id="waiting" class="btn btn-warning">Waiting for answer...</div>
-                <video class="video-player" id="local-video" autoplay playsinline controls></video>
-            </div>
-            <video class="video-player" id="remote-video" autoplay playsinline controls></video>
-        </div>
+    <div id="dialog">
     </div>
 </body>
+<script src="./scripts/dom.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src='scripts.js'></script>
 <script src='socketListeners.js'></script>
