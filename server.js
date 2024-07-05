@@ -160,16 +160,16 @@ io.on('connection', (socket) => {
         // console.log(offers)
     })
 
-    socket.on("hangup", ({connectedWith}) => {
-        const offerIndex = offers.findIndex(o => o.offererUserName === connectedWith || o.answererUserName === connectedWith)
+    socket.on("hangup", (info) => {
+        console.log("hangup", info)
+        const offerIndex = offers.findIndex(o => o.offererUserName === info.from || o.answererUserName === info.from)
         if (offerIndex !== -1) {
-            const offererUserName = offers[offerIndex].offererUserName
-            offers.splice(offerIndex, 1)
+           offers.splice(offerIndex, 1)
 
             // emit to that user to hangup
-            const socketToHangup = connectedSockets.find(s => s.userName === connectedWith)
+            const socketToHangup = connectedSockets.find(s => s.userName === info.from)
             if (socketToHangup) {
-                socket.to(socketToHangup.socketId).emit('hangup', offererUserName)
+                socket.to(socketToHangup.socketId).emit('hangup', info)
             }
         }
     })
